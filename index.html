@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student Register & Login</title>
+  <style>
+    body {
+      padding: 1.25em;
+      font-family: Arial;
+    }
+
+    .main{
+       margin: auto;
+       background: linear-gradient(to left, rgb(60, 113, 96), aquamarine);
+       width: 21.875em;
+       padding:3.125em;
+       padding-left: 6.25em;
+       border-radius: 1.25em;
+       border: 2px solid;
+       border-color: rgb(231, 85, 185);
+       box-shadow: 2px 4px 6px;
+
+    }
+
+    .inputField {
+      margin-bottom: 15px;
+    }
+
+    .inputField label {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .field {
+      padding: 10px;
+      width: 15.625em;
+    }
+
+    .error {
+      color: #e73d34;
+      font-size: 0.9em;
+    }
+
+    #result, #loginResult {
+      margin-top: 0.9375em;
+      font-weight: bold;
+    }
+
+    hr {
+      margin: 1.875em 0;
+    }
+
+    button, input[type="submit"], input[type="reset"] {
+      margin-top: 10px;
+      padding: 8px 15px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  
+
+  <div id="result"></div>
+<div class="main">
+    <h1>Student Registration</h1>
+    <form id="registerForm">
+        <div id="FullName" class="inputField">
+          <label for="fullName">Full Name</label>
+          <input type="text" name="FullName" class="field" required />
+        </div>
+    
+        <div id="email" class="inputField">
+          <label for="email">Email</label>
+          <input type="email" name="Email" class="field" required />
+        </div>
+    
+        <div id="password" class="inputField">
+          <label for="password">Password</label>
+          <input type="password" name="password" class="field" required />
+          <button id="showPass">Show Password</button>
+        </div>
+    
+        <div id="dob" class="inputField">
+          <label for="dob">Date of Birth</label>
+          <input type="text" name="dateOfBirth" class="field" placeholder="DD-MM-YYYY" required />
+        </div>
+    
+        <div class="inputField">
+          <input type="submit" value="Register" />
+          <input type="reset" value="Clear" />
+        </div>
+      </form>
+    
+</div>
+ 
+  <script>
+    let registeredUser = {}; // Temporary in-memory storage
+
+    function isValidEmail(email) {
+      const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      return regex.test(email);
+    }
+
+    function isValidPassword(password) {
+      const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])/;
+      return regex.test(password);
+    }
+
+    function parseDateFromDDMMYYYY(dateStr) {
+      const parts = dateStr.split("-");
+      if (parts.length !== 3) return null;
+      const [day, month, year] = parts;
+      const date = new Date(`${year}-${month}-${day}`);
+      return isNaN(date) ? null : date;
+    }
+
+    function calculateAge(dob) {
+      const today = new Date();
+      let age = today.getFullYear() - dob.getFullYear();
+      const monthDiff = today.getMonth() - dob.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+        age--;
+      }
+      return age;
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const form = document.getElementById("registerForm");
+      const showPass = document.getElementById("showPass");
+      const result = document.getElementById("result");
+
+      showPass.addEventListener("click", (e) => {
+        e.preventDefault();
+        const passInput = document.querySelector('input[name="password"]');
+        passInput.type = passInput.type === "password" ? "text" : "password";
+        showPass.textContent = passInput.type === "text" ? "Hide Password" : "Show Password";
+      });
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        document.querySelectorAll("span").forEach(span => span.remove());
+        result.textContent = "";
+
+        const fullName = form.FullName.value.trim();
+        const email = form.Email.value.trim();
+        const password = form.password.value;
+        const dobStr = form.dateOfBirth.value.trim();
+        const dob = parseDateFromDDMMYYYY(dobStr);
+
+        let isValid = true;
+
+        // Full name
+        if (!fullName) {
+          isValid = false;
+          showError("FullName", "Full name is required");
+        }
+
+        // Email
+        if (!email || !isValidEmail(email)) {
+          isValid = false;
+          showError("email", "Submit a valid email");
+        }
+
+        // Password
+        if (!password || password.length < 7) {
+          isValid = false;
+          showError("password", "Password must be at least 7 characters");
+        } else if (!isValidPassword(password)) {
+          isValid = false;
+          showError("password", "Include uppercase, lowercase, number & symbol");
+        }
+
+        // Date of Birth
+        if (!dob) {
+          isValid = false;
+          showError("dob", "Use valid format: DD-MM-YYYY");
+        } else {
+          const age = calculateAge(dob);
+          if (age < 18) {
+            isValid = false;
+            showError("dob", "You must be at least 18 years old");
+          }
+        }
+
+        if (isValid) {
+          const age = calculateAge(dob);
+          result.style.color = "green";
+          result.innerHTML = `
+            <h3>✅ Registration Successful</h3>
+            <p><strong>Full Name:</strong> ${fullName}</p>
+            <p><strong>Email:</strong> ${email}</p>
+            <p><strong>Age:</strong> ${age}</p>
+          `;
+
+          // Store credentials
+          registeredUser = {
+            email,
+            password
+          };
+        }
+      });
+
+    }) 
+  </script>
+</body>
+</html>
