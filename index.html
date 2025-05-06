@@ -184,23 +184,23 @@
           }
         }
 
-        if (isValid) {
-          const age = calculateAge(dob);
-          result.style.color = "green";
-          result.innerHTML = `
-            <h3>✅ Registration Successful</h3>
-            <p><strong>Full Name:</strong> ${fullName}</p>
-            <p><strong>Email:</strong> ${email}</p>
-            <p><strong>Age:</strong> ${age}</p>
-          `;
+        if(isValid){
+                    document.getElementById('result').innerHTML = `<h2>Submitted details</h2>
+                    <ul><li>Name: ${fullName}</li><li>Email: ${email}</li><li>Password: ${password}</li><li>PDate of Birth: ${dob}</li></ul>`;
+                    
+                    document.querySelector('form').reset();
 
+                }else{
+                    document.getElementById('result').innerHTML = <span style='color:#ff0000'>Please fill all fields</span>
+                }
+            });
           // Store credentials
           registeredUser = {
+            fullName,
             email,
-            password
+            password,
+            dob,
           };
-        }
-      });
 
     }) 
   </script>
